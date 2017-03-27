@@ -75,7 +75,7 @@ cube = 2
 Rolls = [J1R, tetraR, cubeR]
 Nets = [J1N, tetraN, cubeN]
 
-current = J1 #####
+current = cube #####
 
 roll = Rolls[current]
 net = Nets[current]
@@ -104,6 +104,23 @@ def triangle(p1,p2):
 	ph = 
 	dist = (p2-p1)"""
 	return p1,p2,p3
+	
+def hexagon(p1,p2):
+	#creates a triangle clockwise to p1,p2
+	p1 = p1
+	p2 = p2
+	sol = [p1, p2]
+	pa = p1
+	pb = p2
+	for i in range(4):
+		pn = pb + (pa-pb).rotate(-2*pi/3)
+		sol.append(pn)
+		pa = pb
+		pb = pn
+	"""pb = p1 + ((p2-p1)/2)
+	ph = 
+	dist = (p2-p1)"""
+	return sol
 	
 colors = ("black","red","yellow","cyan","magenta","blue","green")
 def make(points,color=0):
@@ -181,9 +198,13 @@ def extend(p1,p2,newshape,oldshape=None):
 	if(len(shape[realshape]))==3:
 		points = triangle(p1,p2)
 		print(" triangle ",newshape)
-	else:
+	elif(len(shape[realshape]))==4:
 		points = square(p1,p2)
 		print(" square ",newshape)
+	else:
+		points = hexagon(p1,p2)
+		print(" hexagon ",newshape)
+		
 	shapespoly.append(Poly(newshape,points))
 	current = shape[realshape]
 	if(oldshape!=None and newshape==realshape):
@@ -202,10 +223,12 @@ def extend(p1,p2,newshape,oldshape=None):
 			#print(index)
 			p1 = points[index%len(points)]
 			p2 = points[(index+1)%len(points)]
-			if not p in shapes and not (newshape != p and p==oldshape):
+			if not p in shapes or p==newshape and not (newshape != p and p==oldshape):
 				###[TODO] ici pose problème de retourner à même shape
 				#print(p,shapes)
 				#print("Work",newshape)
+				if(p==newshape):
+					p+=len(order)
 				extend(p2,p1,p,newshape)
 		
 				
@@ -249,8 +272,10 @@ def explore(p1,p2,case,face,previouscase=None,previousface=None):
 	#else same shape
 	if(len(roll[face])==3):
 		points = triangle(p1,p2)
-	else:
+	elif(len(roll[face])==4):
 		points = square(p1,p2)
+	else:
+		points = hexagon(p1,p2)
 		
 	if(len(net[case]) != len(roll[face])):
 		make(points,-2)
